@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+  <title>main page</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Amatic+SC');
+        
+        body {
+            margin: 0;
+            height: 100%;
+            background-image: linear-gradient(to top, #d9afd9 0%, #97d9e1 100%);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        .button_container {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 30%;
+        }
+
+        .description, .link {
+            font-family: 'Amatic SC', cursive;
+            text-align: center;
+        }
+
+        .description {
+            font-size: 35px;
+        }
+
+        .btn {
+            border: none;
+            display: block;
+            text-align: center;
+            cursor: pointer;
+            text-transform: uppercase;
+            outline: none;
+            overflow: hidden;
+            position: relative;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            background-color: #222;
+            padding: 15px 20px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.20);
+        }
+
+        .btn span {
+            position: relative; 
+            z-index: 1;
+        }
+
+        .btn:after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 490%;
+            width: 140%;
+            background: #78c7d2;
+            -webkit-transition: all .5s ease-in-out;
+            transition: all .5s ease-in-out;
+            -webkit-transform: translateX(-98%) translateY(-25%) rotate(45deg);
+            transform: translateX(-98%) translateY(-25%) rotate(45deg);
+        }
+
+        .btn:hover:after {
+            -webkit-transform: translateX(-9%) translateY(-25%) rotate(45deg);
+            transform: translateX(-9%) translateY(-25%) rotate(45deg);
+        }
+
+        .btn.small {
+            padding: 10px 5px;
+            font-size: 13px;
+            width: 80px;
+            text-align: center;
+            display: inline-block;
+            float: right;
+        }
+        .link {
+            font-size: 20px;
+            margin-top: 30px;
+        }
+
+        .link a {
+            color: #000;
+            font-size: 25px; 
+        }
+    </style>
+</head>
+<body>
+  <div class="container mt-3">
+    <h3 class="mt-5 mb-3">신규 등록 상품</h3>
+    <a href="admin.html" class="btn small" id="signup_button"><span>회원가입</span></a>
+   
+    <form class="row row-cols-lg-auto g-3 align-items-center">      
+        <!-- 카테고리 -->
+        <div class="col-12">
+        <label class="visually-hidden" for="inlineFormSelectPref">Preference</label>
+        <select class="form-select" id="inlineFormSelectPref" name="category_data_table">
+          <option value="">카테고리</option>
+          <option value="상의">상의</option>
+          <option value="하의">하의</option>
+          <option value="신발">신발</option>
+          <option value="패션잡화">패션잡화</option>
+        </select>
+      </div>
+      <!-- 상품명 검색 -->
+      <div class="col-3">
+        <input type="text" class="form-control" id="productInput" placeholder="제품명을 검색하세요">
+      </div>
+
+      <!-- 조회 -->
+      <div class="col-auto">
+        <button type="button" class="btn btn-primary"><span>조회</span></button>
+      </div>
+    </form>
+
+    <div class="container mt-3">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>카테고리</th>
+            <th>브랜드</th>
+            <th>상품명</th>
+            <th>가격</th>
+          </tr>
+        </thead>
+        <tbody id="product_data_Table">
+          <!-- tbody요소의 id="product_data_Table" 는 지우거나 변경하면 안돼요! -->
+          <!-- 제품 데이터가 여기 추가됩니다. -->
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- 페이지네이션 -->
+        <nav aria-label="page navigation">
+            <ul class="pagination justify-content-center" id="pagination"></ul>
+        </nav>
+  </div>
+
+  <script> 
+    const product_data = [
+      { category: "상의", brand: 'Supreme', product: '슈프림 박스로고 후드티', price: '390,000' },
+      { category: "하의", brand: 'DIESEL', product: '디젤 트랙 팬츠', price: '188,000' },
+      { category: "신발", brand: 'Nike', product: '에어포스 1', price: '137,000' },
+      { category: "패션잡화", brand: 'Music&Goods', product: '빵빵이 키링', price: '29,000' },
+      { category: "상의", brand: 'lgfahsion', product: '반팔티', price: '56,000'},
+    ];
+
+    const itemsPerPage = 5;
+    let currentPage = 1;
+    let filterDate = [...product_data];
+
+    const product_data_Table = document.getElementById("product_data_Table");
+    const pagination = document.getElementById("pagination");
+
+    function renderTable(data, currentPage, itemsPerPage){
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const product_data = data.slice(start, end);
+
+      const product_data_Table = document.getElementById("product_data_Table");
+      product_data_Table.innerHTML = '';
+
+      product_data.forEach((item) => {
+        const row = product_data_Table.insertRow();
+        row.insertCell(0).innerHTML = item.category;
+        row.insertCell(1).innerHTML = item.brand;
+        row.insertCell(2).innerHTML = item.product;
+        row.insertCell(3).innerHTML = item.price;
+      });
+    }
+
+    function renderPagination(data, itemsPerPage){
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+      let totalPage = Math.ceil(data.length / itemsPerPage);
+
+      for(let i = 1; i <= totalPage; i++){
+        const li = document.createElement("li");
+        li.className = "page-item" + (i === currentPage ? "active" : "");
+        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        li.addEventListener("click", e => {
+          e.preventDefault();
+          currentPage = i;
+          
+          renderTable(filterDate, currentPage, itemsPerPage);
+          renderPagination(filterDate, itemsPerPage);
+        });
+        pagination.appendChild(li);
+      }
+
+    }
+
+    renderTable(filterDate, currentPage, itemsPerPage);
+    renderPagination(filterDate, itemsPerPage);
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
